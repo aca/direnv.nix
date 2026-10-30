@@ -1,0 +1,111 @@
+direnv.nix
+==========
+
+WARNING: AI vibe-coded software; review before use.
+
+An opinionated, fast direnv replacement written in Zig, with deliberately
+limited features: environment variables and `use nix` / `use flake`. Nix
+environments are cached. It intentionally behaves differently from direnv
+(see CAVEATS); do not expect drop-in compatibility.
+
+PERF
+
+  Env-only median, 300 runs on Linux x86_64, including process launch:
+
+                       direnv 2.37.1    direnv.nix
+    Project reentry         12.43 ms       0.21 ms
+    Unchanged environment    1.43 ms       0.24 ms
+
+  Recorded in bench-results.json; excludes Nix evaluation.
+
+  Elvish, real flake project (Go + zig cc dev shell), time from hook start
+  until the environment is active; median, fresh elvish per sample:
+
+                                   direnv.nix   direnv 2.37.1 + nix-direnv 3.1.2
+    First load, Nix eval cache       130 ms       383 ms
+    First load, full Nix eval        590 ms       854 ms
+    Cached load                      1.1 ms        43 ms
+
+  First load runs `nix print-dev-env` in both; nix-direnv also spawns bash
+  and runs `nix flake archive`. Cached load needs no shell process here;
+  nix-direnv sources its cached rc through bash. direnv.nix does not add GC
+  roots for flake inputs, so a first load after garbage collection may
+  refetch them.
+
+SETUP
+
+    nix profile install github:aca/direnv.nix
+
+  Or download a static binary from the rolling `nightly` prerelease
+  (unversioned; rebuilt on every push to master):
+
+    https://github.com/aca/direnv.nix/releases/tag/nightly
+    direnv-{x86_64,aarch64}-{linux,macos}, with SHA256SUMS
+
+  The installed binary is named `direnv`.
+
+  Or use the existing NixOS module with this package:
+
+    # in flake.nix
+    inputs.direnv-nix.url = "github:aca/direnv.nix";
+
+    # NixOS configuration:
+    programs.direnv = {
+      enable = true;
+      package = inputs.direnv-nix.packages.${pkgs.stdenv.hostPlatform.system}.default;
+      nix-direnv.enable = false;
+      enableXonshIntegration = false;
+    };
+
+  Allow projects (Bash/Zsh; or use NixOS environment.variables):
+
+    # automatically allow these directories and their descendants
+    export DIRENV_NIX_ALLOW_DIRS="$HOME/src/git.internal:$HOME/src/github.com/aca"
+
+    # alternatively, allow everything
+    export DIRENV_NIX_ALLOW_ALL=1
+
+  Or allow one project explicitly (from its directory or any subdirectory):
+
+    direnv allow    # grant this project directory
+    direnv deny     # revoke the grant
+
+  Add ONE hook, unless NixOS already installs your Bash/Zsh/Fish hook:
+
+    Bash:    eval "$(direnv hook bash)"
+    Zsh:     eval "$(direnv hook zsh)"
+    Fish:    direnv hook fish | source
+    Elvish:  eval (direnv hook elvish | slurp)
+
+  Example .envrc:
+
+    use flake
+    export MY_VAR=hello
+
+CAVEATS
+
+  - Not compatible with direnv by design. Supports [export] NAME=value, unset NAME,
+    use nix [file], use flake [local-path#shell] [--impure], and watch_file path
+    only.
+  - No arbitrary shell commands or shellHook execution. Flakes must be local.
+  - Nix's TERM and TZ (build-sandbox values) are ignored; PATH and
+    XDG_DATA_DIRS are prepended to the shell's values instead of replacing them.
+  - Imported Nix files need explicit watch_file entries to invalidate the cache.
+  - The Nix cache key ignores shell variables except NIX_*, HOME and
+    XDG_CONFIG_*; run `direnv reload` after other changes Nix depends on.
+  - `use flake` is pure unless `--impure` is given; `use nix` is always impure.
+    Impure evaluation skips Nix's eval cache (~120 ms -> ~580 ms per
+    re-evaluation here), so keep it opt-in.
+  - While a project is loaded, DIRENV_DIR holds its directory (for prompts).
+  - Prompt-time export is silent, including Nix failures; `direnv reload`
+    shows Nix's error output.
+  - Loading is blocked by default. DIRENV_NIX_ALLOW_DIRS uses colon-separated
+    absolute paths; DIRENV_NIX_ALLOW_ALL=1 overrides the list. Set in your shell.
+  - `direnv allow` grants a directory, not a .envrc revision: edits stay allowed.
+    Grants live in $XDG_DATA_HOME/direnv.nix/allow, so clearing the cache keeps
+    them. `direnv deny` only revokes the grant, not the environment variables.
+  - Supports Bash, Zsh, Fish and Elvish. NixOS installs Bash/Zsh/Fish hooks;
+    add Elvish's hook manually. In Elvish, use set-env instead of export for
+    the allow policy; in Fish, use set -gx.
+  - `direnv export json` prints changes as one JSON object, null meaning unset
+    (for editor integrations). There is no `direnv hook json`.

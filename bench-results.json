@@ -1,0 +1,61 @@
+{
+  "iterations": 300,
+  "platform": "Linux-7.3.0-x86_64-with-glibc2.42",
+  "binary_version": "direnv.nix 0.1.0-dev (Zig 0.17.0)",
+  "direnv_version": "2.37.1",
+  "note": "wall time includes process launch; ALLOW_DIRS has two entries matching the second unless allow-all is specified; Nix cache fixture uses fake Nix; direnv comparison is env-only",
+  "results": {
+    "direnv.nix/no-project": {
+      "median_ms": 0.144,
+      "p95_ms": 0.266
+    },
+    "direnv.nix/env-only/reentry": {
+      "median_ms": 0.214,
+      "p95_ms": 0.354
+    },
+    "direnv.nix/env-only/unchanged": {
+      "median_ms": 0.242,
+      "p95_ms": 0.354
+    },
+    "direnv.nix/env-only/shell+reentry": {
+      "median_ms": 1.519,
+      "p95_ms": 1.768
+    },
+    "direnv.nix/nix-cache/reentry": {
+      "median_ms": 0.213,
+      "p95_ms": 0.345
+    },
+    "direnv.nix/nix-cache/unchanged": {
+      "median_ms": 0.191,
+      "p95_ms": 0.316
+    },
+    "direnv.nix/nix-cache/shell+reentry": {
+      "median_ms": 1.557,
+      "p95_ms": 1.813
+    },
+    "direnv.nix/nix-cache/allow-all/reentry": {
+      "median_ms": 0.211,
+      "p95_ms": 0.311
+    },
+    "direnv.nix/nix-cache/allow-all/unchanged": {
+      "median_ms": 0.198,
+      "p95_ms": 0.312
+    },
+    "direnv/env-only/reentry": {
+      "median_ms": 12.428,
+      "p95_ms": 13.631
+    },
+    "direnv/env-only/unchanged": {
+      "median_ms": 1.426,
+      "p95_ms": 1.683
+    },
+    "direnv/no-project": {
+      "median_ms": 1.232,
+      "p95_ms": 1.469
+    },
+    "direnv/env-only/shell+reentry": {
+      "median_ms": 14.086,
+      "p95_ms": 15.995
+    }
+  }
+}

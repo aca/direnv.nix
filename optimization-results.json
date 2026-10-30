@@ -1,0 +1,47 @@
+{
+  "platform": "Linux-7.3.0-x86_64-with-glibc2.42",
+  "runs_per_binary_per_case": 1000,
+  "environment_variable_count": 102,
+  "binary_sha256": [
+    "ff7c56f6e2932944d748e6082b194bd23b7288aed677f4101c57f8373a3b4412",
+    "0d697a2b144232df5824e5bbe02c4210a7162643b51327f741e9d605a3be2037"
+  ],
+  "note": "paired randomized order; process launch included; fake Nix populates warm cache",
+  "results": {
+    "no-project/reentry": {
+      "before_median_ms": 0.48,
+      "after_median_ms": 0.334,
+      "before_p95_ms": 0.773,
+      "after_p95_ms": 0.532,
+      "median_reduction_percent": 30.4
+    },
+    "env-only/reentry": {
+      "before_median_ms": 0.554,
+      "after_median_ms": 0.425,
+      "before_p95_ms": 0.812,
+      "after_p95_ms": 0.643,
+      "median_reduction_percent": 23.3
+    },
+    "env-only/unchanged": {
+      "before_median_ms": 0.512,
+      "after_median_ms": 0.376,
+      "before_p95_ms": 0.717,
+      "after_p95_ms": 0.516,
+      "median_reduction_percent": 26.5
+    },
+    "nix-cache/reentry": {
+      "before_median_ms": 0.568,
+      "after_median_ms": 0.438,
+      "before_p95_ms": 0.8,
+      "after_p95_ms": 0.611,
+      "median_reduction_percent": 22.9
+    },
+    "nix-cache/unchanged": {
+      "before_median_ms": 0.516,
+      "after_median_ms": 0.379,
+      "before_p95_ms": 0.736,
+      "after_p95_ms": 0.514,
+      "median_reduction_percent": 26.5
+    }
+  }
+}
